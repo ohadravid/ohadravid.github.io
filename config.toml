@@ -1,0 +1,65 @@
+baseURL = "https://ohadravid.github.io/"
+title = "Ohad's Blog"
+theme = "gokarna"
+
+languageCode = "en"
+defaultContentLanguage = "en"
+enableEmoji = true
+enableRobotsTXT = true
+
+pygmentsStyle = "nord"
+
+[params]
+  socialIcons = [
+    {name = "twitter", url = "https://twitter.com/ohadrv"},
+    {name = "github", url = "https://github.com/ohadravid"},
+    {name = "email", url = "mailto:ohad.rv@gmail.com"}
+  ]
+  metaKeywords = ["blog", "tech", "rust"]
+
+[menu]
+  [[menu.main]]
+    name = "Home"
+    pre = "<span data-feather='home'></span>"
+    url = "/"
+    weight = 1
+
+  [[menu.main]]
+    name = "Posts"
+    pre = "<span data-feather='book'></span>"
+    url = "/posts/"
+    weight = 2
+
+  [[menu.main]]
+    name = "Projects"
+    pre = "<span data-feather='code'></span>"
+    url = "/projects/"
+    weight = 3
+
+  [[menu.main]]
+    name = "Tags"
+    pre = "<span data-feather='tag'></span>"
+    url = "/tags/"
+    weight = 4
+
+  [[menu.main]]
+    identifier = "github"
+    pre = "<span data-feather='github'></span>"
+    url = "https://github.com/ohadravid"
+    weight = 5
+
+  # TODO: make this work for posts.
+  [[menu.main]]
+    identifier = "rss"
+    pre = "<span data-feather='rss'></span>"
+    url = "/index.xml"
+    weight = 6
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [markup.tableOfContents]
+    startLevel = 1
+    endLevel = 4
+    ordered = false
