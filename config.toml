@@ -16,6 +16,7 @@ pygmentsStyle = "nord"
     {name = "email", url = "mailto:ohad.rv@gmail.com"}
   ]
   metaKeywords = ["blog", "tech", "rust"]
+  showPostsOnHomePage = "recent"
 
 [menu]
   [[menu.main]]
