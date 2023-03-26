@@ -1,5 +1,5 @@
 baseURL = "https://ohadravid.github.io/"
-title = "Ohad's Blog"
+title = "Tea and Bits"
 theme = "gokarna"
 
 languageCode = "en"
@@ -10,6 +10,7 @@ enableRobotsTXT = true
 pygmentsStyle = "nord"
 
 [params]
+  description = "Ohad's blog"
   socialIcons = [
     {name = "twitter", url = "https://twitter.com/ohadrv"},
     {name = "github", url = "https://github.com/ohadravid"},
