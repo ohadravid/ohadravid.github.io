@@ -88,7 +88,7 @@ It is time to introduce our friend the profiler.
 
 Python has a built in Profiler (`cProfile`), but in this case it's not really the right tool for the job:
 
-1. It'll introduce a lot of overhead to all the Python code, and non for native code, so our results might be biased.
+1. It'll introduce a lot of overhead to all the Python code, and none for native code, so our results might be biased.
 2. We won't be able to see into native frames, meaning we aren't going to be able to see into our Rust code.
 
 We are going to use `py-spy` ([GitHub](https://github.com/benfred/py-spy)).
@@ -266,7 +266,7 @@ fn find_close_polygons(polygons: Vec<PyObject>, point: PyObject, max_dist: f64) 
 `PyObject` is (as the name suggest) a generic "anything goes" Python object.
 We'll try to interact with it in a bit.
 
-This should make the program run (albite incorrectly).
+This should make the program run (albeit incorrectly).
 
 I'm going to just copy and paste the original Python function, and fix the syntax.
 
