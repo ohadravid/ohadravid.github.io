@@ -4,6 +4,7 @@ date: 2023-03-28T00:00:00+00:00
 tags: ["rust", "python", "performance"]
 type: post
 showTableOfContents: true
+image: "/2023-03-rusty-python-profs/profiler-preview.png"
 ---
 
 A while ago at [$work](https://www.trigoretail.com/), we had a performance issue with one of our core Python libraries.
