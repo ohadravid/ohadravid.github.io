@@ -18,7 +18,23 @@ pygmentsStyle = "nord"
   ]
   metaKeywords = ["blog", "tech", "rust"]
   showPostsOnHomePage = "recent"
+  customHeadHTML = '''
+    <style>
+    /* Disable floating header. */
 
+    #content {
+        margin-top: 0 !important;
+    }
+
+    .header {
+        position: relative !important;
+    }
+
+    .header-shadow {
+        box-shadow: none !important;
+    }
+    </style>
+  '''
 [menu]
   [[menu.main]]
     name = "Home"
