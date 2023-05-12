@@ -1,5 +1,5 @@
 ---
-title: "Coherence in Rust (feat. rustc sources)"
+title: "Winning the fight against the Rust compiler (Coherence in Rust, feat. rustc sources)"
 date: 2023-05-10T12:00:00+00:00
 tags: ["rust"]
 type: post
@@ -31,8 +31,10 @@ But this error is indeed strange.
 Isn’t one of the reasons for using traits is to allow others to implement them? 
 Why does Rust reject this particular combination of structs, traits and generics? 
 
-Read on to learn about _coherence_, the orphan rules and why they actually *increase* the usability of traits. 
-We’ll even cover how `rustc` checks and generates this particular error 🕵🏻🦀.
+And.. can we modify `rustc` and force it to accept our code?
+
+Read on to learn about _coherence_, the orphan rules and why they actually *increase* the usability of traits, 
+and find out what happens when you fight the compiler and win (only to lose the war).
 
 **Table of Contents**
 
@@ -887,3 +889,6 @@ Here's the link again:
 [Getting Started - Rust Compiler Development Guide](https://rustc-dev-guide.rust-lang.org/getting-started.html#getting-started)
 
 Give it a shot! You'll meet friendly people and friendly rust code 🦀
+
+
+_Edit, 20230512 - Reworded the opening a bit and changed the title_
