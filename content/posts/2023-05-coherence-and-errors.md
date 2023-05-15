@@ -389,7 +389,7 @@ First things first,
 $ git clone git@github.com:rust-lang/rust.git
 ```
 
-The `rust-lang/rust` repo is a bit more than 2.5 million lines or Rust.
+The `rust-lang/rust` repo is a bit more than 2.5 million lines of Rust.
 
 ```bash
 cd rust
