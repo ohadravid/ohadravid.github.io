@@ -751,9 +751,9 @@ def find_close_polygons(
 # Rest of file (main, select_best_polygon).
 ```
 
-We profiled it using `py-spy`, and even our most [naive, line-to-line translation](#v1-a-naive-rust-translation) of `find_close_polygons` resulted in more than a x10 improvement.
+We profiled it using `py-spy`, and even our most [naive, line-to-line translation](#v1-a-naive-rust-translation) of `find_close_polygons` resulted in more than x10 improvement.
 
-We did a few additional iterations of profile-write-measure iterations until we finally we gained a x100 improvement in runtime, while keeping the same API as the original library.
+We did a few profile-rewrite-measure iterations until we finally gained x100 improvement in runtime, while keeping the same API as the original library.
 
 | Version                                                      | Avg time per iteration (ms)  | Multiplier | 
 |--------------------------------------------------------------|------------------------------|------------|
