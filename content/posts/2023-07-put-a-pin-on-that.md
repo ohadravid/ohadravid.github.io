@@ -20,7 +20,7 @@ So, I'm writing this as a way to force my brain to retain (pin?) this knowledge.
 
 `Pin` is _a type of pointer_, which can be thought of as a middle ground between `&mut T` and `&T`.
 
-The point of `Pin<T>` is to say:
+The point of `Pin<&mut T>` is to say:
 
 1. ✅ This value can be modified (like `&mut T`) but
 2. 🙅 This value cannot be moved (unlike `&mut T`)
@@ -267,7 +267,7 @@ We therefore can use `Box::pin`[^2]:
 
 Making `f` a `Pin<Box<impl Future<Output = u32>>`.
 
-But didn't we just say that `Pin<T>` is a (wrapper around a) pointer "in between" `&mut T` and `&T`?
+But didn't we just say that `Pin<&mut T>` is a (wrapper around a) pointer "in between" `&mut T` and `&T`?
 
 Well, a `mut Box<T>` is also like a `&mut T`, but with ownership.
 
