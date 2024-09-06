@@ -16,7 +16,7 @@ Then, I remember my most downvoted StackOverflow answer, and I become less angry
 
 I wrote the actual answer many years ago, but the angry-ness is much more recent.
 
-Apparently, I angered someone on a topic that is _so_ controversial that my answer became part of a [StackOverflow Meta](https://meta.stackoverflow.com/)(!) discussion about how to deal with such terrible answers.
+Apparently, I angered someone on a topic that is _so_ controversial that my answer became part of a [StackOverflow Meta](https://meta.stackoverflow.com/)(!) [discussion](https://meta.stackoverflow.com/questions/420337/what-is-the-procedure-for-getting-blatantly-off-topic-c-or-c-answers-deleted) about how to deal with such terrible answers.
 
 > ### What is the procedure for getting blatantly off-topic C or C++ answers deleted?
 > … Example: \
@@ -27,6 +27,8 @@ Apparently, I angered someone on a topic that is _so_ controversial that my answ
 Damn, was someone mad at me on the internet.
 
 ![Angry Mob with pitchfork and torches from the Simpsons](/2024-09-yells-at-cloud/angry_mob_torches.png)
+
+(Edit: the answer is now deleted! thanks HN 😂 [archive link](https://web.archive.org/web/20231203060623/https://stackoverflow.com/questions/37538/how-do-i-determine-the-size-of-my-array-in-c/8129291#8129291))
 
 When I wrote that answer (13 years ago, but only  \**checks-notes*\* 11 years before the meta-discussion 🫠), I needed to know the size of an array in a C thing I was working on, and the top answer(s) (`sizeof(a)/sizeof(a[0])`) didn’t apply.
 
