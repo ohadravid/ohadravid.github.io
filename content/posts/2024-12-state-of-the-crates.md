@@ -676,7 +676,7 @@ We do use `Bazel` as our build system (primarily because we mix Rust and Python)
 
 I hope you found this helpful! I wonder how much this list will change next year? In five? \
 And of course, there are so many other awesome crates. \
-What are some of yours? Discuss on [r/rust](https://www.reddit.com/r/rust/) 🦀
+What are some of yours? Discuss on [r/rust](https://www.reddit.com/r/rust/comments/1hafdai/state_of_the_crates_2025/) 🦀.
 
 ## TL;DR
 
