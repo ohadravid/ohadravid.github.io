@@ -692,7 +692,7 @@ What are some of yours? Discuss on [r/rust](https://www.reddit.com/r/rust/commen
 
 **Error Handling**  
 - **thiserror**: Errors for libraries  
-- **anyhow**: Errors for application
+- **anyhow**: Errors for applications
 
 **Testing**  
 - **rstest**: Parametric tests and fixtures (familiar if you know `pytest`)
