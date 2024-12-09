@@ -15,6 +15,10 @@ You can also jump to the end for the [final `Cargo.toml`](#tldr).
 
 For context, we're a small-ish Rust & Python shop handling compute-heavy workloads on-prem. Our system is split into a reasonable number of services that talk to each other mostly over RabbitMQ or HTTP.
 
+**Table of Contents**:
+
+{{% toc %}}
+
 ## Connectivity
 
 Everything (`async`) is `tokio`.
