@@ -7,6 +7,8 @@ showTableOfContents: true
 image: "/2023-03-rusty-python-profs/profiler-preview.png"
 ---
 
+_Update: I gave a talk on this topic at [P99 CONF 2023](https://youtu.be/Jb_kdYEXVw8?si=buwUwuDzz5oRn3KA) and at [PyCon IL 2024 (Hebrew)](https://youtu.be/Tc9MlJN2y04?si=iE_Af883R6ublqbR)._
+
 A while ago at [$work](https://www.trigoretail.com/), we had a performance issue with one of our core Python libraries.
 
 This particular library forms the backbone of our 3D processing pipeline. It’s a rather big and complex library which uses NumPy and other scientific Python packages to do a wide range of mathematical and geometrical operations.
