@@ -97,11 +97,21 @@ pygmentsStyle = "nord"
   tags = ["no-description"]
   tagsPostDescription = ["no-description"]
 
+# To avoid listing a post, use 
+# ```
+# _build: 
+#  list: never
+# ```
+# in the front matter of the post.
+
+# To customize the text in the card without displaying a description, 
+# set `summary` in the front matter of the post.
+
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
   [markup.tableOfContents]
     startLevel = 1
-    endLevel = 4
+    endLevel = 3
     ordered = false
