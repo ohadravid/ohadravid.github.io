@@ -74,6 +74,10 @@ pygmentsStyle = "nord"
     url = "/index.xml"
     weight = 6
 
+[params.hidden]
+  tags = ["no-description"]
+  tagsPostDescription = ["no-description"]
+
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
