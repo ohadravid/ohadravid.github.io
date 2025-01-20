@@ -6,15 +6,15 @@ summary: "After updating the TensorRT version we use to compile ML models at wor
 type: post
 showTableOfContents: true
 math: true
-image: "/2025-01-debugging-vit-and-tensorrt/videomae-arch.png"
+image: "/2025-01-debugging-vit-and-tensorrt/videomae-arch-extended.png"
 ---
 
 ## A Test is Worth a Thousand Words
 
 At $work, we run quite a few ML models in production, usually compiled using [_TensorRT_](https://developer.nvidia.com/tensorrt).
-I wanted to use something from a recent release, so I opened a small PR to bump us to the latest version.
 
-Then, I got a failure in a test: the test feeds a video to a model expecting a specific classification, but the model produced complete garbage instead.
+While switching to a new major version, I encountered an unexpected problem. I got a failure in a test that feeds a video to a model expecting a specific classification, but the model produced complete garbage instead.
+
 Having a test catch this regression was great[^0], but it left me at an impasse: what could I do besides opening an issue and hope for the best?
 
 This led me on an unusual debugging quest, dissecting a Vision Transformer model layer by layer and even digging through torch internals.
@@ -42,8 +42,8 @@ The specific model for which the test was failing is a video model based on the 
 
 We'll go into (a lot) more detail later, but for now what you need to know is that it's a model that accepts an input video (as an array of bitmap images) and outputs a classification (one of 710 labels, like `riding a bike` or `roller skating`).
 
-Running inference, especially on video, is very compute-heavy. But simply running a model on the GPU using `torch` can be relatively inefficient (which is expected, as torch has different design goals).
-Instead, we use [_TensorRT_](https://developer.nvidia.com/tensorrt), which is a collection of a high-performance deep learning tools and libraries by NVIDIA.
+Using `torch` for running inference on the GPU is probably the easiest option we have, but as we'll see it isn't always the fastest way to do so (which is expected, as torch has different design goals).
+Instead, we can use [_TensorRT_](https://developer.nvidia.com/tensorrt), which is a collection of a high-performance deep learning tools and libraries by NVIDIA.
 
 There are a few ways to build TensorRT "engines" (compiled models ready to be loaded to the GPU for inference), but a common one is:
 
@@ -53,9 +53,7 @@ There are a few ways to build TensorRT "engines" (compiled models ready to be lo
 
 ### Hello ViT
 
-Because _VideoMAE_ has published checkpoints, we can actually do some inference right away.
-
-By the way, you can find the full code on GitHub at [ohadravid/vit-trt](https://github.com/ohadravid/vit-trt).
+Because _VideoMAE_ has published checkpoints, we can actually do some inference right away (you can find the full code on GitHub at [ohadravid/vit-trt](https://github.com/ohadravid/vit-trt)).
 
 We need a few dependencies:
 
@@ -164,7 +162,9 @@ model = HelloViT(video_mae_model)
 ```
 
 Our model expects a batch of `B` videos, each with 16 frames. We then use `permute` to reorder the dimensions, and forward it.
-Finally, we apply a [`softmax`](https://pytorch.org/docs/stable/generated/torch.nn.functional.softmax.html) which is a standard way of converting the output into probabilities (why isn't it part of the ViT already? well, because [`log_softmax` is better for gradient calculation](https://pytorch.org/docs/stable/generated/torch.nn.functional.log_softmax.html)).
+Finally, we apply a [`softmax`](https://pytorch.org/docs/stable/generated/torch.nn.functional.softmax.html) which is a standard way of converting the output into probabilities[^2].
+
+[^2]: Why isn't it part of the ViT already? Well, because [`log_softmax` is better for gradient calculation](https://pytorch.org/docs/stable/generated/torch.nn.functional.log_softmax.html). Since we aren't training this model, we don't really care about gradients and back propagation.
 
 Well, maybe "do some inference right away" was a bit of a stretch, but we're nearly there!  
 
@@ -335,9 +335,14 @@ A ViT, in high level:
 
 [^3]: A positional embedding is also added to each patch embedding (which is just a calculated value to describe where in the grid of `224/16x224/16=14x14` the patch is).
 
-The main difference between this and our model is that since we deal with video, instead of a single image we'll pass in a sequence of 16 images which are split into patches in pairs.
+Because we work on videos, we want different images from the video to affect each other's embeddings.
+Therefore, we don't want to pass individual images to the Transformer blocks.
 
-![VideoMAE Architecture](/2025-01-debugging-vit-and-tensorrt/videomae-arch.png)
+We could take all the patches from all the images and pass them to the Transformer blocks, 
+but to save on compute we are actually going to combine each pair of consecutive frames,
+and generate a single patch embedding from each _pair of matching patches_ - so for example, the top-left 16x16 patch from frame 0 will be combined with the top-left patch from frame 1 into a single, 384-length embedding.
+
+![VideoMAE Architecture](/2025-01-debugging-vit-and-tensorrt/videomae-arch-extended.png)
 
 #### Step 1
 
