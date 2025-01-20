@@ -709,6 +709,9 @@ setting table: 0.00
 
 Hurray! We lost some performance when running with `torch`, but at least we get a working engine now (both engines will have similar performance since TensorRT can optimize both versions).
 
+But what's different about the explicit version? And can we get back the performance we lost?
+Let's do a quick recap, and then explore these questions.
+
 ## Summary
 
 We covered a lot of ground: How to run inference on a ViT-based model, How to export to ONNX and use TensorRT compilation, and finally how to print-debug an ML model.
@@ -719,11 +722,34 @@ This really highlights how powerful debugging by bisecting a problem can be: hav
 
 We also saw that while it is magic/math that makes the models work, the actual code and tools behind them are not magical at all, and can be inspected, edited and modified just like any other piece of software.
 
-_However..._ we ended up using a "worse" version of the Attention block.
+_However..._ we ended up using a "worse" version of the attention layer, and we don't even know what's different about it that makes it work correctly.
 
 It would be nice if we can keep the performance we had before and still produce working engines, wouldn't it?
 
 ## Going Deeper
+
+The first thing we can do is export only the attention layers to ONNX and try to compare them.
+
+```python
+x = torch.zeros((6, 1568, 384))
+attn = model.model.blocks[0].attn
+
+onnx_bytes = io.BytesIO()
+torch.onnx.export(
+    attn,
+    (x,),
+    onnx_bytes,
+    input_names=["x"],
+    output_names=["x"],
+)
+Path("attn.onnx").write_bytes(onnx_bytes.getvalue())
+```
+
+Using Netron again, the only difference between the [explicit version](/2025-01-debugging-vit-and-tensorrt/attn_explicit.onnx) (left) and the [scaled dot product version](/2025-01-debugging-vit-and-tensorrt/attn_scaledot.onnx) (right) seems to be that the `Mul B = 0.125` in the middle was split into two `Mul`s (each of `B = sqrt(0.125) = 0.353..`).
+
+![A screenshot from Netron comparing both versions's ONNX files](/2025-01-debugging-vit-and-tensorrt/attn_explicit_vs_attn_scaledot.png)
+
+This seems to trigger a bug in the TensorRT compiler, but doesn't tell us much beyond that.
 
 Reading the documentation, one way to do this is to check if we are exporting an ONNX and only use the explicit version then, but that seems so ugly! There must be a better way.
 
@@ -738,7 +764,7 @@ else:
 Reading some more, there's also a function called `F.multi_head_attention_forward`.
 
 If you really want to, you can see how the full 19-parameter-call looks like [here](https://github.com/ohadravid/vit-trt/blob/main/alternative_attn_modules.py#L178).
-It produces a working engine but unfortunately it's _even slower_ than the explicit version!
+It produces a working engine (and a [slightly different ONNX](/2025-01-debugging-vit-and-tensorrt/attn_mha_fwd.onnx)) but unfortunately it's _even slower_ than the explicit version!
 
 But why? And can we do better?
 
