@@ -1,6 +1,6 @@
 ---
 title: "Debugging a Vision Transformer Compilation Issue"
-date: 2025-01-19T00:00:00+00:00
+date: 2025-01-22T00:00:00+00:00
 tags: ["python", "torch", "dl", "debugging"]
 summary: "After updating the TensorRT version we use to compile ML models at work, I got a failure in a test: the test feeds a video to a model expecting a specific classification, but the model produced complete garbage. This led me on an unusual debugging quest, dissecting a Vision Transformer layer by layer."
 type: post
@@ -15,7 +15,7 @@ At $work, we run quite a few ML models in production, usually compiled using [_T
 
 While switching to a new major version, I encountered an unexpected problem. I got a failure in a test that feeds a video to a model expecting a specific classification, but the model produced complete garbage instead.
 
-Having a test catch this regression was great[^0], but it left me at an impasse: what could I do besides opening an issue and hope for the best?
+Having a test catch this regression was great[^0], but it left me at an impasse: what could I do besides opening an [issue](https://github.com/NVIDIA/TensorRT/issues/4333) (beware, spoilers!) and hope for the best?
 
 This led me on an unusual debugging quest, dissecting a Vision Transformer model layer by layer and even digging through torch internals.
 
@@ -749,7 +749,9 @@ Using Netron again, the only difference between the [explicit version](/2025-01-
 
 ![A screenshot from Netron comparing both versions's ONNX files](/2025-01-debugging-vit-and-tensorrt/attn_explicit_vs_attn_scaledot.png)
 
-This seems to trigger a bug in the TensorRT compiler, but doesn't tell us much beyond that.
+This seems to trigger a bug in the TensorRT compiler ([see the issue on GitHub](https://github.com/NVIDIA/TensorRT/issues/4333)), but doesn't tell us much beyond that.
+
+As a side note, while reviewing an earlier version of this article [izikgo](https://github.com/izikgo) pointed me to [this PR](https://github.com/bigscience-workshop/Megatron-DeepSpeed/pull/118), which seems to explain _why_ `F.scaled_dot_product` splits the multiplication factor like this - it is actually **more** numerically stable.
 
 Reading the documentation, one way to do this is to check if we are exporting an ONNX and only use the explicit version then, but that seems so ugly! There must be a better way.
 
@@ -869,6 +871,8 @@ setting table: 0.00
 ```
 
 Phew!
+
+Special thanks to [Omer](https://github.com/omerbenamram), [Izik](https://github.com/izikgo), [Yuval](https://github.com/yogevyuval) and [Yoav](https://github.com/yoavrv) for reviewing earlier drafts of this article.
 
 ## Appendixes
 
