@@ -874,6 +874,8 @@ Phew!
 
 Special thanks to [Omer](https://github.com/omerbenamram), [Izik](https://github.com/izikgo), [Yuval](https://github.com/yogevyuval) and [Yoav](https://github.com/yoavrv) for reviewing earlier drafts of this article.
 
+_Edit 1: NVIDIA also has a tool called [Polygraphy](https://github.com/NVIDIA/TensorRT/tree/main/tools/Polygraphy), which (among other things) can be used to [auto-bisect failing ONN models](https://github.com/NVIDIA/TensorRT/tree/release/10.7/tools/Polygraphy/examples/cli/debug/02_reducing_failing_onnx_models)._
+
 ## Appendixes
 
 #### Appendix 1 - Performance
