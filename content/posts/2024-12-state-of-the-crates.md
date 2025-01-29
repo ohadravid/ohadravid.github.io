@@ -5,6 +5,7 @@ tags: ["thoughts", "rust"]
 type: post
 showTableOfContents: true
 image: "/2024-12-state-of-the-crates/cargo_toml.png"
+weight: 3
 ---
 
 One of the best things about Rust is that there are so many high-quality crates for everything and anything you want.

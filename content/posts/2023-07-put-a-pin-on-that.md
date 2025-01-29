@@ -5,6 +5,7 @@ tags: ["rust", "async"]
 type: post
 showTableOfContents: true
 image: "/2023-07-put-a-pin-on-that/dalle_a_pushpin_futuristic_drawing.jpg"
+weight: 2
 ---
 
 

@@ -5,6 +5,7 @@ tags: ["thoughts"]
 type: post
 showTableOfContents: false
 image: "/2024-09-yells-at-cloud/stackoverflow_notifications.png"
+weight: 3
 ---
 Sometimes, I get mad at someone on the internet.
 

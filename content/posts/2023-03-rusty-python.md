@@ -5,6 +5,7 @@ tags: ["rust", "python", "performance"]
 type: post
 showTableOfContents: true
 image: "/2023-03-rusty-python-profs/profiler-preview.png"
+weight: 1
 ---
 
 _Update: I gave a talk on this topic at [P99 CONF 2023](https://youtu.be/Jb_kdYEXVw8?si=buwUwuDzz5oRn3KA) and at [PyCon IL 2024 (Hebrew)](https://youtu.be/Tc9MlJN2y04?si=iE_Af883R6ublqbR)._

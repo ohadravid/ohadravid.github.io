@@ -17,7 +17,7 @@ pygmentsStyle = "nord"
     {name = "email", url = "mailto:ohad.rv@gmail.com"}
   ]
   metaKeywords = ["blog", "tech", "rust"]
-  showPostsOnHomePage = "recent"
+  showPostsOnHomePage = "popular"
   customHeadHTML = '''
     <style>
     /* Disable floating header. */

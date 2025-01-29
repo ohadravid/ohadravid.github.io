@@ -5,6 +5,7 @@ tags: ["rust"]
 type: post
 showTableOfContents: true
 image: "/2023-05-coherence-and-errors/orphan-checker-preview.png"
+weight: 3
 ---
 
 ## An unexpected error

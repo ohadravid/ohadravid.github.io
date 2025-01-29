@@ -7,6 +7,7 @@ type: post
 showTableOfContents: true
 math: true
 image: "/2025-01-debugging-vit-and-tensorrt/videomae-arch-extended.png"
+weight: 1
 ---
 
 ## A Test is Worth a Thousand Words
