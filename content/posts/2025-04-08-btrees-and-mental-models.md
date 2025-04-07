@@ -1,23 +1,20 @@
 ---
 title: "BTrees, Inverted Indices, and a Model for Full Text Search"
-date: 2025-04-07T00:00:00+00:00
+date: 2025-04-10T00:00:00+00:00
 tags: ["rust", "databases", "practices", "performance"]
 summary: "Whenever I get into a new technology, I try to build myself a mental model of how it works. Let's do that for _full text search engines_, by writing a minimal implementation in Rust"
 type: post
 showTableOfContents: true
 image: "/2025-04-08-btrees-and-mental-models/inverted_index.png"
 weight: 1
-_build: 
- list: never
 ---
 
-Whenever I get into a new technology (A new database feature, a fancy distributed queue, a programming language, an orchestration system, ...), 
-I try to build myself a _mental model_ of how it works, so I can reason about how it should behave, predict its scaling properties, and avoid running expensive experiments.
+Whenever I get into a new technology (A new database feature, a fancy distributed queue, an orchestration system), 
+I try to build myself a _mental model_ of how it works.
 
-Today, we'll build a mental model for _Full Text Search_ engines (along with some code in Rust), as done in database systems such as Elasticsearch, PostgreSQL and ClickHouse[^1],
-and use it to explain and predict some key features, limitations, and solutions common across these systems. 
+Today, we'll build a mental model for _Full Text Search_ engines (along with some code in Rust), as done in database systems such as Elasticsearch, PostgreSQL and ClickHouse.
 
-[^1]: As we are going to see, a good model will tradeoff precision for simplicity and generalization in order to cover different implementations of a single underlying idea.
+By the end, you'll understand some of the key features, limitations, and solutions common to all these systems - and even predict how they behave in different scenarios.
 
 ## A Primer on Text Analysis
 
@@ -33,7 +30,15 @@ Full text search boils down to this: given a query like `performant typed langua
 (a) *which* documents match the query and 
 (b) *rank* them by how well they match the query.
 
-Let's write a minimal implementation that can answer these questions, and use that to predict how a real system might behave. \
+## Build vs. Read
+
+To build a good model of a system it can be enough to _do the reading_: 
+documentation and technical write-ups are great for getting all the information you need to build a model of a system in your head, 
+but it’s important not to get lost in the details, especially since most of these will focus on a _very specific solution_,
+while we care more about the _problem_ and the _solution space_.
+
+Writing some (minimal, even really bad) code is a great way to gain a deeper insight into the core ideas behind a system, 
+so let's write a tiny piece of code that can match documents to a query, and use that to predict how a real system might behave. \
 We'll set up our code so that we have this data in memory, and ignore the many details required to actually store it [safely on disk](https://danluu.com/file-consistency/).
 
 ```rust
@@ -49,11 +54,17 @@ type DocId = usize;
 
 ## A Simple Tokenizer
 
-We'll start by **breaking** each long piece of text into small atoms, called _tokens_[^2], which are going to be the individual words that make up the original text.
+To find documents matching the query `performant typed language`, we can take each word in the query, and look for it in each of the documents. 
+This will be horrifically slow, but it nudges us the right direction: if we also split the documents into words ahead of time, we might be able to do faster lookups.
 
-[^2]: Not to be confused with _tokens in the LLM sense_, which are sequences of characters that are mapped to a specific number in an embedding space, and can be parts of words (See for example: [Tiktokenizer](https://tiktokenizer.vercel.app/), and `openai/tiktoken`'s [BPEs](https://github.com/openai/tiktoken?tab=readme-ov-file#what-is-bpe-anyway)).
+In our example, we would consider each small part of the text to be a word, but for more general texts the actual “atoms” are harder to categorize.
 
-The simplest way to do this is by splitting every time we see a whitespace character, which is a single line of code in most languages:
+<picture>
+    <source srcset="/2025-04-08-btrees-and-mental-models/tokens_dark.png" media="(prefers-color-scheme: dark)">
+    <img src="/2025-04-08-btrees-and-mental-models/tokens_light.png">
+</picture>
+
+In text analysis, these atoms are called _tokens_[^2]. For now, we'll just naively split the text every time we see a whitespace character:
 
 ```rust
 fn tokenize(doc: &str) -> Vec<&str> {
@@ -67,51 +78,40 @@ dbg!(tokenize(doc));
 ```
 
 Phew! Some 10x engineering right there. 
-However, I failed to mention _why_ we are actually breaking down the text.
+
+[^2]: Not to be confused with _tokens in the LLM sense_, which are sequences of characters that are mapped to a specific number in an embedding space, and can be parts of words (See for example: [Tiktokenizer](https://tiktokenizer.vercel.app/), and `openai/tiktoken`'s [BPEs](https://github.com/openai/tiktoken?tab=readme-ov-file#what-is-bpe-anyway)).
 
 ## An Inverted Index
 
-To look for documents matching the query `performant typed language`, we can check for each token _in the query_ to see if it's contained in each of the documents.
-A query token is usually called a _term_.
-
-Instead of scanning every document for every token we will _tokenize the documents_ and store the tokens from each document in an _inverted index_:
+Instead of scanning every document for every token in the query (usually called a _term_), we will _tokenize the documents_ and store the tokens from each document in an _inverted index_:
 the token will be the key, and the value will be the document ids that contain that token.
 
-| token       | docs ids    |
-|-------------|-------------|
-| better      | [1]         |
-| concurrency | [2]         |
-| typed       | [1, 2]      |
-| language    | [0, 1, 2]   |
-| performance | [2]         |
-| ..          | ..          |
+| Token       | Document IDs |
+|-------------|--------------|
+| better      | [1]          |
+| concurrency | [2]          |
+| typed       | [1, 2]       |
+| language    | [0, 1, 2]    |
+| performance | [2]          |
+| ..          | ..           |
 
-There's a small wrinkle here because `performant` and `performance` are not the same token, which we'll handle in the next section.
-
-It's worth noting that simply splitting a text by whitespace characters will not produce what we think of as tokens for more general texts, 
-but for now this is good enough.
-
-<img src="/2025-04-08-btrees-and-mental-models/tokens_light.png" alt="An example of different texts which require more complex tokenization, like code blocks">
+There's a small wrinkle here because `performant` and `performance` are not the same token, which is one of the things we'll handle in the next section.
 
 ## BTrees, the Powerhouse of the Database
 
 We are going to use [`BTreeMap`](https://doc.rust-lang.org/std/collections/struct.BTreeMap.html) from the standard library as the data structure for our index.
 
 For a _mental model_ of a full text search engine, we can treat all the minutiae around binary trees, b-trees, b+trees, etc. as, well, minutiae, 
-and _think_ about the `BTreeMap` index as a **stored array with cheap insert/remove**, with values attached to the sorted elements - just like the table above.[^3]
+and _think_ about the `BTreeMap` index as a **stored array with cheap insert/remove**, with values attached to the sorted elements - just like the table above (sorted arrays have cheap - in the `O(log(N))` sense - lookup using binary search, so we are getting this "for free" here).
 
-[^3]: Sorted arrays have cheap (in the `O(log(N))` sense) lookup using binary search, so we are getting this "for free" here.
+This is _technically_ completely incorrect, but it's a very useful **approximation**. When working out a mental model, having a good approximation and knowing _when_ that approximation doesn't apply[^4] can be more useful than hauling out the precise formulation for every analysis.
 
-This is _technically_ completely incorrect, but it's a very useful **approximation**. When working out a mental model, having a good approximation and knowing _when_ that approximation doesn't apply can be more useful than hauling out the precise formulation for every analysis.
-
-Bonus content: when is this approximation likely to fail?[^4]
-
-[^4]: Most notably, keeping the tree balanced (during insert and delete operations) is complex enough that most implementations will run compactions at certain intervals and only mark a node as deleted without actually removing it. 
+[^4]: Most notably, this approximation fails when dealing with high insert or delete workloads: keeping the tree balanced is complex enough that most implementations will run compactions at certain intervals and only mark a node as deleted without actually removing it. 
 Also, the actual relationship between the on-disk and in-memory representations (and how fast it is to load from / spill over to the disk) can have operational consequences.
 
 The reason we want to think about a _map_ as a sorted array/table is because we'll be working with ranges. In our little example, `performant` and `performance` aren't the same token, but they do share a **stem**: if we stemmed the query and got back something like `perform`, we can use our inverted index to get all the tokens starting with `perform` efficiently by binary-searching for it, and then advancing along the values of the index.
 
-Let's whip up a small Rust implementation which will allow us to reason about some of the typical features full text search implementations have.
+In Rust, this is what building such an index looks like:
 
 ```rust
 // Create a new index.
@@ -148,7 +148,7 @@ dbg!(index.get(query[2])); // Some([0, 1, 2])
 ```
 
 This brings us to the other way to query the `BTreeMap`, and the reason it's useful to approximate it as a sorted array: 
-we can query it efficiently (in the `O(log(N))` sense) by _range_, which for `String`s will use lexicographic order:
+we can query it efficiently - again, in the `O(log(N))` sense - by _range_, which for `String`s will use lexicographic order:
 
 ```rust
 let term = "perform".to_string();
@@ -164,7 +164,7 @@ Calculating the matching docs can be done by taking an intersection of all the d
 
 ### Ranking
 
-When searching for text in a large corpus, it's common to only want to return the "best" N results, as there are likely many more documents matching any given query than are useful for the user.
+When searching for text in a large corpus, it's common to only want to return the "best" N results, since many more documents may match a given query than are actually useful to the user.
 
 To meaningfully rank our results we need more data, but we can already build some intuition: We can see that if we count the total number of documents that contain each token, we see that `performance` (1) < `typed` (2) < `language` (3). We can deduce that `performance` is a more "specific" token, meaning that documents that contain it (especially multiple times) would be a better match for the query. 
 
@@ -190,9 +190,9 @@ For example, Elasticsearch supports [`prefix` queries](https://www.elastic.co/gu
 But we can see from our model that supporting queries like `*ython* language` is a lot harder! To do it efficiently, we can use [_n-grams_](https://en.wikipedia.org/wiki/N-gram), which is like applying a sliding window tokenizer to the original text, and will increase the index size a lot. Elasticsearch has an [`ngram`](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-ngram-tokenizer.html) tokenizer, and ClickHouse supports `ngrams` via the [`full_text(ngrams)`](https://clickhouse.com/docs/engines/table-engines/mergetree-family/invertedindexes#usage) index creation option.
 
 📊 The **Common tokens** problem: \
-Our model predicts that common tokens like `the` and `a` will require storing an enormous number of document ids, but they are almost useless for searching and ranking documents (counterpoint: consider a query like `bear` vs `The Bear`). Handling them specifically (together with stemming and tokenizing) requires [language specific](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html) knowledge.
+In our code, common tokens like `the` and `a` require storing an enormous number of document ids, yet they are almost useless for searching and ranking documents (counterpoint: consider a query like `bear` vs `The Bear`). [Filtering](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-stop-tokenfilter.html) such [stop words](https://en.wikipedia.org/wiki/Stop_word) specifically, together with stemming and tokenizing, requires [language specific](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html) knowledge.
 
-Regular terms also tend to have an uneven distribution, with some (like `language` in our little example) being pretty common, and a lot of terms being very rare. We used a vector to store the document ids, which will be inefficient at both ends of this spectrum, so we can predict that different implementations will choose different underlying data structures for them: For example, ClickHouse uses [roaring bitmaps](https://clickhouse.com/blog/clickhouse-search-with-inverted-indices#posting-lists) while PostgreSQL uses [`GIN`](https://www.postgresql.org/docs/current/textsearch-indexes.html#TEXTSEARCH-INDEXES) which is [implemented](https://www.postgresql.org/docs/current/gin.html#GIN-IMPLEMENTATION) as a B-tree of B-trees.
+Regular tokens also tend to have an uneven distribution - some (like `language` in our example) are very common, while many tokens are rare. We used a vector to store the document ids, which will be inefficient at both ends of this spectrum, so we can guess that different implementations will use more efficient data structures for them: For example, ClickHouse uses [roaring bitmaps](https://clickhouse.com/blog/clickhouse-search-with-inverted-indices#posting-lists) while PostgreSQL uses [`GIN`](https://www.postgresql.org/docs/current/textsearch-indexes.html#TEXTSEARCH-INDEXES) which is [implemented](https://www.postgresql.org/docs/current/gin.html#GIN-IMPLEMENTATION) as a B-tree of B-trees.
 
 ✂️ The **Multi-Field Filtering** Challenge: \
 When users want to combine text search with structured filters (`"typescript btree" AND stars > 1000`), our model points to a problem: unless we create a dedicated index that uses both fields, we'll have to get all the doc ids matching the text and intersect them with the doc ids that match the other filter(s). PostgreSQL supports this via [multicolumn GIN indices](https://www.postgresql.org/docs/current/indexes-multicolumn.html), while Elasticsearch doesn't support creating such indices but instead focuses on having a very efficient intersection implementation.
@@ -204,16 +204,16 @@ When users want to combine text search with structured filters (`"typescript btr
 Consider a query like `javascript language`: since the TypeScript document has tokens matching both terms, we will consider it a match for this query.
 We can let the user specify that they want a more "exact" match, for example by using `"javascript language"`, meaning that the term `language` must _follow_ the term `javascript`.
 
-However, in our current model, to support this we'll need to **re-process** every document that matched the terms, and figure out at what order they appear.
+Our index currently maps from tokens to document ids (`BTreeMap<String, Vec<DocId>>`), so we can find the superset of documents that match this query, and then **re-process** every one of them and figure out at what order the terms appear in them.
 
 This can be absolutely fine! Our example documents are very short, and if we don't expect an exact query to match a lot of documents (or don't intend to support them at all), doing this extra work isn't that bad.
 
 A similar analysis applies for generating highlights for our results:
 
 > Query: `performant typed language` \
-> Response: `rust`: "Rust is a statically-**typed** programming **language** designed for **performance** and safety."
+> Response: `rust`: "Rust is a statically-<mark>typed</mark> programming <mark>language</mark> designed for <mark>performance</mark> and safety."
 
-Doing this "on the fly" for short documents can be fine, but if we had bigger documents (e.g. entire Wikipedia articles), we’ll end up paying a high compute cost for each query.
+Doing this "on the fly" for short documents can be fine, but if we have bigger documents (e.g. entire Wikipedia articles), we’ll end up paying a high compute cost for each query.
 
 The key insight is that we need to know not just _which_ documents contain the terms, but _where_ those terms appear in each document.
 We can do that by trading query-time compute with ingest-time compute and storage: 
@@ -221,7 +221,7 @@ instead of only storing the document **ids** for each token, we can also store i
 
 This will require us to re-structure both our index and tokenizer. 
 
-We'll define a struct to hold the start and end offsets of a term:
+We'll define a struct to hold the start and end offsets of a token:
 
 ```rust
 type DocId = usize;
@@ -244,7 +244,7 @@ fn tokenize_and_insert(
 }
 ```
 
-We'll track the current term's offsets using the new structure, and update it as we iterate over the document:
+We'll track the current token's offsets using the new structure, and update it as we iterate over the document:
 
 ```rust
 let split_chars = HashSet::from([' ', '-', '.', ',']);
@@ -294,15 +294,13 @@ PostgreSQL also provides the [`ts_headline`](https://www.postgresql.org/docs/cur
 
 ## Summary
 
-That's it folks! We have a model of a full text search engine - it boils down to splitting text into tokens, storing tokens in a sorted index with their document id and position, and fetching by prefix. \
+That's it folks! We have a model of a full text search engine - it boils down to splitting text into tokens, storing tokens in a sorted index with their document ids and position, and fetching by prefix. \
 We even saw that the predictions we made based on this model matched the behaviors and documentation of different implementations.
 
 I used this model _a lot_ back when I was working with big Elasticsearch clusters and needed to implement complex queries, custom mappings, and analyzers, 
-and it helped me to better understand everything about the system and the things we observed when putting it under pressure.
+and it helped me to better understand everything about the system, the things we observed when putting it under pressure, and avoid running expensive experiments.
 
-Sometimes, to build an accurate enough model of a system, it can be enough to _do the reading_: 
-the documentation, design documents, and technical articles might provide all the information you'll need, 
-but it can be easy to get lost in the details, and a small amount of code can help you stay focused on the most important parts.
+Building an accurate model of a system can be sometimes be done purely by reading, but it can be easy to get lost in the details, and a small amount of code can help keep the focus on the most important parts.
 
 Are there any particularly useful mental models you have? Discuss on [r/rust](https://www.reddit.com/r/rust/), [lobsters](https://lobste.rs/)! 👋
 
@@ -344,7 +342,7 @@ fn search_using_index(query: &[&str], index: &BTreeMap<&str, Vec<DocId>>) {
 }
 ```
 
-Note that we're using a slightly different index type here: Instead of using a `String` (heap-allocated vector of chars) key, we are using `&str` (a slice of chars). This is more realistic and allows us to remove an annoying allocation which would make the benchmark useless.
+Note that we're using a slightly different index type here: For our key, instead of using a `String` (heap-allocated vector of chars), we are using `&str` (a slice of chars). This is more realistic and allows us to remove an annoying allocation which would make the benchmark useless.
 
 Using the same query as before, we can add a few more documents to see how performance is affected by more data.
 ```rust
