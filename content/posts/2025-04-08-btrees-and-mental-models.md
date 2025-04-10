@@ -302,7 +302,7 @@ and it helped me to better understand everything about the system, the things we
 
 Building an accurate model of a system can be sometimes be done purely by reading, but it can be easy to get lost in the details, and a small amount of code can help keep the focus on the most important parts.
 
-Are there any particularly useful mental models you have? Discuss on [r/rust](https://www.reddit.com/r/rust/), [lobsters](https://lobste.rs/)! 👋
+Are there any particularly useful mental models you have? Discuss on [r/rust](https://www.reddit.com/r/rust/comments/1jvwcgj/btrees_inverted_indices_and_a_model_for_full_text/), [lobsters](https://lobste.rs/s/cmrgzh/btrees_inverted_indices_model_for_full)! 👋
 
 ## Appendix 1 - Compared to Naive Search
 
