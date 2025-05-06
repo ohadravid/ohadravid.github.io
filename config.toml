@@ -33,7 +33,50 @@ pygmentsStyle = "nord"
     .header-shadow {
         box-shadow: none !important;
     }
+
+    [data-theme="dark"] {
+      --blockquote-color: rgb(210, 210, 210);
+    }
+    
+    [data-theme="light"] {
+      --blockquote-color: rgb(59, 58, 57);
+    }
+    
+    blockquote {
+      color: var(--blockquote-color);
+    }
     </style>
+    <script>
+    const originalSetThemeByUserPref = setThemeByUserPref;
+
+    // Override the default function and add a class to root with the current theme.
+    setThemeByUserPref = function () {
+        originalSetThemeByUserPref();
+
+        onDisabledChange(darkThemeCss.disabled);
+
+        const observer = new MutationObserver((mutations) => {
+          for (const mutation of mutations) {
+            if (mutation.type === "attributes" && mutation.attributeName === "disabled") {
+              onDisabledChange(darkThemeCss.disabled);
+            }
+          }
+        });
+
+        observer.observe(darkThemeCss, {
+          attributes: true,
+          attributeFilter: ["disabled"],
+        });
+        
+        function onDisabledChange(isDisabled) {
+          if (isDisabled) {
+            document.documentElement.setAttribute("data-theme", "light");
+          } else {
+            document.documentElement.setAttribute("data-theme", "dark");
+          }
+        }
+    };
+    </script>
     <script defer data-domain="ohadravid.github.io" src="https://plausible.io/js/script.js"></script>
     
     <!-- KaTeX -->
