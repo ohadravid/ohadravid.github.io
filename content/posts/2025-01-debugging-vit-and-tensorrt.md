@@ -669,7 +669,7 @@ x = (attn @ v)
 _We_ actually introduced `F.scaled_dot_product_attention` during the cleanup.
 
 <p align="center">
-    <img src="/2025-01-debugging-vit-and-tensorrt/spongebob-wanted.png" alt="SpongeBob Wanted Maniac meme" width="50%" />
+    <img src="/2025-01-debugging-vit-and-tensorrt/spongebob-wanted.webp" alt="SpongeBob Wanted Maniac meme" width="50%" />
 </p>
 
 But why did we do this? (Please bear in mind that the cleanup happened about a year before the issue appeared).

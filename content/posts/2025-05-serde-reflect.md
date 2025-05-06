@@ -5,7 +5,7 @@ date: 2025-05-06T10:00:00+00:00
 tags: ["rust", "python", "api", "design"]
 type: post
 showTableOfContents: true
-image: "/2025-05-serde-reflect/rick_and_motry_20min_adventure_with_types.jpg"
+image: "/2025-05-serde-reflect/rick_and_motry_20min_adventure_with_types.webp"
 weight: 2
 _build: 
  list: never
@@ -21,7 +21,13 @@ Let me show you how, and also why.
 
 _Note: I'll try to keep this somewhat approachable to Python programmers with only passing experience in Rust, it'll be fun._ 🦀🐍
 
-![Rick and Morty - Let's go. In and out. 20 minutes adventure, with complex Rust code with many types in the wormhole](/2025-05-serde-reflect/rick_and_motry_20min_adventure_with_types.png "Let's go. Python in Rust out. 20 minutes adventure.")
+<img
+  src="/2025-05-serde-reflect/rick_and_motry_20min_adventure_with_types.webp"
+  alt="Rick and Morty - Let's go. In and out. 20 minutes adventure, with complex Rust code with many types in the wormhole"
+  title="Let's go. Python in Rust out. 20 minutes adventure."
+  width="1280"
+  height="720"
+/>
 
 [^1]: The result of this work is the [`wmi-rs` crate], which I maintain to this day.
 
@@ -108,7 +114,7 @@ Since any field can be of any type, the user must manually check (either with `m
 what variant of the `Value` enum they got every time they interact with it. \
 This is especially cumbersome when one wants to query many different types of objects (`Win32_Battery` 🔋, `Win32_UserAccount` 💁, `Win32_Printer` 🖨️, ...).
 
-<img src="/2025-05-serde-reflect/its_raw.png" alt="Gordon Ramsay yelling IT'S RAW" width="60%" loading="lazy" />
+<img src="/2025-05-serde-reflect/its_raw.webp" alt="Gordon Ramsay yelling IT'S RAW" width="60%" loading="lazy" />
 
 _Note: this is a simplification of the [underlying API](https://learn.microsoft.com/en-us/windows/win32/api/wbemcli/nf-wbemcli-iwbemclassobject-get) we have to use,
 but it's close enough that we can design our higher level API based on it. You can check the [`wmi-rs` crate] source code for the full details._
@@ -482,7 +488,7 @@ impl Deserialize for Fan                           impl Deserializer for serde_j
 Well, "more" being a key word here.
 
 <img 
-  src="/2025-05-serde-reflect/charlie_conspiracy.png" 
+  src="/2025-05-serde-reflect/charlie_conspiracy.webp" 
   alt="Charlie Conspiracy (always Sunny In Philadelphia)" 
   title="Let's talk about the traits. Can we talk about the traits? I'm dying to talk about the traits." 
   width="60%" 
