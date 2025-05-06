@@ -1,14 +1,12 @@
 ---
 title: "A Rust API Inspired by Python, Powered by Serde"
 summary: "Years ago, I worked on reimplementing some Python code in Rust and needed to adapt Python’s dynamic reflection capabilities (aka `__getattr__`) to the strict and compiled world of Rust..."
-date: 2025-05-06T10:00:00+00:00
+date: 2025-05-07T12:00:00+00:00
 tags: ["rust", "python", "api", "design"]
 type: post
 showTableOfContents: true
 image: "/2025-05-serde-reflect/rick_and_motry_20min_adventure_with_types.webp"
 weight: 2
-_build: 
- list: never
 ---
 
 Years ago, I worked on reimplementing[^1] some Python code in Rust ([yet again]({{< ref "/posts/2023-03-rusty-python.md" >}})),
@@ -159,7 +157,7 @@ but without resorting to [violence](https://jack.wrenn.fyi/blog/deflect/), we se
 
 ## Crawl Before You Can Walk
 
-Let's start with a more modest solution: Let's **define a new trait** that:
+Let's start with a relatively simple solution: Let's _define a new trait_ that:
 
 1. Provides the name of the object to query.
 2. Handles the construction of e.g. `Fan`s from `Object`s.
@@ -212,7 +210,7 @@ impl Queryable for Fan {
 }
 ```
 
-We can let them write:
+Then they can use our improved `query` function by specifying the return type:
 
 ```rust
 let res: Vec<Fan> = api::query();
@@ -238,7 +236,8 @@ It is this ability to to generate a `Deserialize` implementation and than use it
 
 I should preface this by saying that while we'll learn a lot about the internals of Serde 
 (which, fair warning, is a complex topic even when focusing on a specific part like we'll do),
-I'm not trying to claim that this is the most _conventional_ use case for Serde. I do think the result is pretty neat though.
+I'm not trying to claim that this is the most _conventional_ use case for Serde (see the [Alternatives](#alternatives) section for more about this). 
+I do think the result is pretty neat though.
 
 To use Serde, we usually need an additional library that leverages these traits to interact with different data formats.
 
@@ -467,22 +466,28 @@ which provides data from the `Deserializer` (in this case, a `map` which impleme
  
 Or, more visually:
 
-```rust
+<style>
+.serde-code-visualization pre code {
+  font-size: 0.72em
+}
+</style>
+
+```rust {class="serde-code-visualization"}
 let fan = Fan::Deserialize(serde_json::Deserializer::from_str(r#"{ "Name": "CPU1", "Active.."#));
 
-impl Deserialize for Fan                           impl Deserializer for serde_json::Deserializer
-┌ fn deserialize(deser)                            │                                                       
-│   let visitor = FanVisitor {}                    │                                                       
-│   deser.deserialize_struct(.., visitor) ─calls─► │ fn deserialize_struct(.., visitor)
-│                                                      let map = serde_json::de::MapAccess::new(..)
-│   impl Visitor for FanVisitor                        
-│   ┌ fn visit_map(map) ◄────────calls──────────────── return visitor.visit_map(map)
-│   │      loop {                                      impl MapAccess for serde_json::de::MapAccess
-│   │        key = map.next_key() ──────calls────────► ┌ fn next_key()   // { ..,▼"Name": ..
-│   │        match key { ... }                         │                                             
-│   │        val = map.next_value() ────calls────────► └ fn next_value() // {         ..:▼"CPU1", ..
-└   └      }                                                                                                
-◄───────── return Fan { ... }
+impl Deserialize for Fan                            impl Deserializer for serde_json::Deserializer
+┌ fn deserialize(deser)                             │
+│   let visitor = FanVisitor {}                     │
+│   deser.deserialize_struct(.., visitor) ─calls──► ├ fn deserialize_struct(.., visitor)
+│                                                   │   let map = serde_json::de::MapAccess::new(..)
+│   impl Visitor for FanVisitor                     │   
+│   ┌ fn visit_map(map) ◄────────calls───────────────── return visitor.visit_map(map)
+│   │   loop {                                          impl MapAccess for serde_json::de::MapAccess
+│   │     key = map.next_key() ──────calls────────────► ┌ fn next_key()   // { ..,▼"Name": ..
+│   │     /* since key is "Name" */                     │
+│   │     name: String = map.next_value() ───calls────► └ fn next_value() // {         ..:▼"CPU1", ..
+│   │   }
+◄────── return Fan { ... }
 ```
 
 Well, "more" being a key word here.
@@ -698,19 +703,20 @@ and Serde provides a [`StrDeserializer`](https://docs.rs/serde/latest/serde/de/v
 
 Using the same visualization from before, if the _calling_ `Visitor` expects a `String` key (for example in `HashMap<String, _>`), we'll get something like this:
 
-```rust
+```rust {class="serde-code-visualization"}
 // Same as `next_key_seed` after type substitution for `String`:
+// `StrDeserializer` is defined as `struct StrDeserializer { value: &str, .. }`.
 fn next_key() -> Result<String, _> { String::deserialize(StrDeserializer::new("Name")) }
 let key: String = next_key();
 
-impl Deserialize for String                        impl Deserializer for serde::de::value::StrDeserializer
-┌ fn deserialize(deser)                            │  // Defined as `struct StrDeserializer { value: &str, .. }`
-│   let visitor = StringVisitor {}                 │                                                       
+impl Deserialize for String                        impl Deserializer for StrDeserializer
+┌ fn deserialize(deser)                            │
+│   let visitor = StringVisitor {}                 │
 │   deser.deserialize_string(.., visitor) ─calls─► │ fn deserialize_string(.., visitor)
 │                                                      let value = self.value
-│   impl Visitor for StringVisitor                        
+│   impl Visitor for StringVisitor
 │   ┌ fn visit_str(value: &str) ◄────────calls──────── return visitor.visit_str(value)
-◄───────── return Ok(value.to_owned())                                                                              
+◄────── return Ok(value.to_owned())
 ```
 
 You can also think about this as the "base case" for the `Visitor`: somewhere down the stack, we'll want to construct some [primitive type](https://serde.rs/data-model.html) which has a `Deserialize` implementation that doesn't recurse any further.
@@ -820,6 +826,8 @@ To recap, the final flow is:
 8. `String`'s `Deserialize` calls `ValueDeserializer::deserialize_string`, which is forwarded to `deserialize_any`, which calls `visitor.visit_string(s)`, which is handled by `String`'s `Deserialize`'s `Visitor`.
 9. `String`'s `Deserialize`'s `Visitor` only needs to return the `s` it got from that call.
 10. Finally, after doing this for each field, `T`'s `Visitor` is done and returns a new instance of `T`.
+
+You can also check the full code, which is less than 150 lines, in the [`v2_api.rs` file on GitHub](https://github.com/ohadravid/serde-reflect/blob/main/src/v2_api.rs).
 
 As a bonus point, consider that this is pretty much a zero overhead abstraction: we are doing almost exactly what the manual `Queryable` implementation did,
 with a few more indirections that can be optimized away by the compiler.
