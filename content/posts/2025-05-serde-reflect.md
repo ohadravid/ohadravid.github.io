@@ -866,6 +866,8 @@ in more than 7 years, Serde's API didn't break once (still on version `1`), whil
 I think it would also be interesting to see how a different approach to compile-time code generation, like Zig's [comptime](https://zig.guide/language-basics/comptime/),
 can support something similar.
 
+Discuss on [r/rust](https://www.reddit.com/r/rust/comments/1kgwvwc/a_rust_api_inspired_by_python_powered_by_serde/), [lobsters](https://lobste.rs/s/8jjrva/rust_api_inspired_by_python_powered_by)! 👋
+
 ## Future Work
 
 You can explore the entire source code for this article in [this GitHub repo](https://github.com/ohadravid/serde-reflect),
@@ -959,3 +961,6 @@ pub struct OsFan {
 
 assert_eq!(struct_name::<OsFan>(), "Fan");
 ```
+
+
+_Special thanks to [Yoav](https://github.com/yoavrv) and [Ido](https://github.com/idobenamram) for reviewing earlier drafts of this article._
