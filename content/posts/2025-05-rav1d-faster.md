@@ -441,4 +441,6 @@ and I suspect this approach of comparing between profiler snapshots of [`dav1d`]
 
 Go ahead and give this a try! Maybe `rav1d` can eventually become faster than `dav1d` 👀🦀.
 
+Discuss on [r/rust](https://www.reddit.com/r/rust/comments/1ksnljw/making_the_rav1d_video_decoder_1_faster/), [lobsters](https://lobste.rs/s/j3mzif/making_rav1d_video_decoder_1_faster), [HN](https://news.ycombinator.com/item?id=44061160)! 👋
+
 _If you liked this, you might also like [Debugging a Vision Transformer Compilation Issue]({{< ref "/posts/2025-01-debugging-vit-and-tensorrt.md" >}}) and [Making Python 100x faster with less than 100 lines of Rust]({{< ref "/posts/2023-03-rusty-python.md" >}})_.
