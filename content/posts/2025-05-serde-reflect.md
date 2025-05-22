@@ -866,7 +866,7 @@ in more than 7 years, Serde's API didn't break once (still on version `1`), whil
 I think it would also be interesting to see how a different approach to compile-time code generation, like Zig's [comptime](https://zig.guide/language-basics/comptime/),
 can support something similar.
 
-Discuss on [r/rust](https://www.reddit.com/r/rust/comments/1kgwvwc/a_rust_api_inspired_by_python_powered_by_serde/), [lobsters](https://lobste.rs/s/8jjrva/rust_api_inspired_by_python_powered_by)! 👋
+Discuss on [r/rust](https://www.reddit.com/r/rust/comments/1kgwvwc/a_rust_api_inspired_by_python_powered_by_serde/), [lobsters](https://lobste.rs/s/8jjrva/rust_api_inspired_by_python_powered_by), [HN](https://news.ycombinator.com/item?id=43954858)! 👋
 
 ## Future Work
 
