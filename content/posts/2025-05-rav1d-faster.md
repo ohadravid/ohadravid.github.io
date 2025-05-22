@@ -383,7 +383,7 @@ It turns out that the `zerocopy` crate can statically verify the [safety require
 use zerocopy::{AsBytes, FromBytes, FromZeroes};
 
 #[derive(Clone, Copy, Eq, Default, FromZeroes, FromBytes, AsBytes)]
-#[repr(C), align(32)]
+#[repr(C)]
 pub struct Mv {
     pub y: i16,
     pub x: i16,
