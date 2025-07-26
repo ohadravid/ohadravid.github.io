@@ -473,7 +473,7 @@ Or, more visually:
 </style>
 
 ```rust {class="serde-code-visualization"}
-let fan = Fan::Deserialize(serde_json::Deserializer::from_str(r#"{ "Name": "CPU1", "Active.."#));
+let fan = Fan::deserialize(serde_json::Deserializer::from_str(r#"{ "Name": "CPU1", "Active.."#));
 
 impl Deserialize for Fan                            impl Deserializer for serde_json::Deserializer
 ┌ fn deserialize(deser)                             │
