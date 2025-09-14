@@ -8,7 +8,15 @@ showTableOfContents: false
 image: "/2025-09-hello-bazel/bazel_graph.webp"
 weight: 5
 ---
+<style>
+.post .post-content {
+    margin-top: 0px;
+}
 
+.post hr {
+  margin: 0px;
+}
+</style>
 How can you build Python code with [Bazel](https://bazel.build/)? Why would you even want to do that?
 
 This is the topic of a lightning talk I gave at PyCon IL this year.
