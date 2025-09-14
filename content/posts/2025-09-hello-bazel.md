@@ -11,8 +11,8 @@ weight: 5
 
 How can you build Python code with [Bazel](https://bazel.build/)? Why would you even want to do that?
 
-This is the topic of a short talk I gave at PyCon IL this year.
-Below are the slides, starting with _why_ this is a problem that you might have.
+This is the topic of a lightning talk I gave at PyCon IL this year.
+Below are the slides and a transcript, starting with _why_ this is a problem that you might have.
 You can also jump right into [the part about how Bazel can solve that problem](#how-bazel-solves-these-problems),
 or [check the GitHub repo](https://github.com/ohadravid/hello-bazel-pycon-il).
 
@@ -35,7 +35,9 @@ Today I want to show you how to build Python code with Bazel - and, more importa
 
 ## The Problem
 
-So let’s say you’ve got an app. A nice little app. Let’s say: Uber, but for dog walkers.
+So let’s say you’ve got an app. A nice little app. 
+
+How about: DogeWalker - Uber, but for dog walkers.
 
 <img src="/2025-09-hello-bazel/hello_bazel_02.svg" class="slide" loading="lazy" style="aspect-ratio: 16 / 9;"/>
 
@@ -62,7 +64,7 @@ Of course, you add a test.
 
 You open a PR.
 
-And you’re just about to Alt-Tab over to the Wolt page - when suddenly…
+And you’re just about to Alt-Tab over to the Wolt page - when suddenly...
 
 <img src="/2025-09-hello-bazel/hello_bazel_05.svg" class="slide" loading="lazy" style="aspect-ratio: 16 / 9;"/>
 
@@ -72,10 +74,11 @@ Should be an easy fix!
 
 <img src="/2025-09-hello-bazel/hello_bazel_06.svg" class="slide" loading="lazy" style="aspect-ratio: 16 / 9;"/>
 
-Which only takes… three hours to sort out.
+Which only takes... three hours to sort out.
+
 Turns out the UV version in CI was too old.
 Then the lockfile didn’t match, because you’re on macOS and CI is on Linux.
-And… which version of Torch did we even want to install? So many choices!
+And... which version of Torch did we even want to install? So many choices!
 
 But in the end, the tests pass. Victory!
 
@@ -99,14 +102,14 @@ And these are good questions!
 
 <img src="/2025-09-hello-bazel/hello_bazel_09.svg" class="slide" loading="lazy" style="aspect-ratio: 16 / 9;"/>
 
-So you do the right thing and add an integration test.
+So, you do the right thing and add an integration test.
 
 But now you have to test the production image in CI before every merge.
-And it’s slow. \
-And painful.
 
-These tests also run every time you change something unrelated, \
-and you find yourself waiting for the CI to finish even more than you wait for the Wolt delivery.
+And it’s slow. And painful.
+
+Worst still, these tests run every time you change something unrelated, \
+and you find yourself waiting for the CI to finish more than you wait for the Wolt delivery.
 
 <img src="/2025-09-hello-bazel/hello_bazel_10.svg" class="slide" loading="lazy" style="aspect-ratio: 16 / 9;"/>
 
@@ -173,9 +176,9 @@ All that’s needed is an additional target specifying the Rust files we depend 
 We add it as a dependency to the library, and we’re done!
 
 Bazel takes care of everything: it will download the Rust compiler, \
-build the extension against the correct Python, \
+build the extension against the _correct_ Python, \
 handle the imports, \
-and of course, it knows to redo that only when the Rust files change (and never when they don’t).
+and of course, it knows to redo all of that when the Rust files change (but not when they don’t).
 
 <img src="/2025-09-hello-bazel/hello_bazel_18.svg" class="slide" loading="lazy" style="aspect-ratio: 16 / 9;"/>
 
@@ -200,3 +203,5 @@ building a Docker image, classifying a dog image with Torch, running an integrat
 Thanks!
 
 <img src="/2025-09-hello-bazel/hello_bazel_20.svg" class="slide" loading="lazy" style="aspect-ratio: 16 / 9;"/>
+
+_If you liked this, you might also like [The story of the craziest `__init__` I’ve ever seen]({{< ref "/posts/2025-04-19-frank.md" >}}) and [Making Python 100x faster with less than 100 lines of Rust]({{< ref "/posts/2023-03-rusty-python.md" >}})_.
