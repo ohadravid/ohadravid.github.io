@@ -19,6 +19,8 @@ Let me show you how, and also why.
 
 _Note: I'll try to keep this somewhat approachable to Python programmers with only passing experience in Rust, it'll be fun._ 🦀🐍
 
+_I also gave a talk on this topic at EuroRust 2025, you can find the slides [here](/2025-05-serde-reflect/eurorust_2025_serde_driven_reflection.pdf)._
+
 <img
   src="/2025-05-serde-reflect/rick_and_motry_20min_adventure_with_types.webp"
   alt="Rick and Morty - Let's go. In and out. 20 minutes adventure, with complex Rust code with many types in the wormhole"
