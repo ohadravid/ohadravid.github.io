@@ -91,8 +91,8 @@ So `rav1d` is about 9% (6 seconds) slower than `dav1d` for that sample file, at 
 I used [samply](https://github.com/mstange/samply) which is my current go-to sampling profiler:
 
 ```bash
-./dav1d $ sudo samply record ./build/tools/dav1d -q -i /Chimera-AV1-8bit-1920x1080-6736kbps.ivf -o /dev/null --threads 1
-./rav1d $ sudo samply record ./target/release/dav1d -q -i /Chimera-AV1-8bit-1920x1080-6736kbps.ivf -o /dev/null --threads 1
+./dav1d $ sudo samply record ./build/tools/dav1d -q -i Chimera-AV1-8bit-1920x1080-6736kbps.ivf -o /dev/null --threads 1
+./rav1d $ sudo samply record ./target/release/dav1d -q -i Chimera-AV1-8bit-1920x1080-6736kbps.ivf -o /dev/null --threads 1
 ```
 
 (The Rust binary is also called `dav1d`, which is a bit confusing.)
@@ -135,6 +135,8 @@ This means that (A) the _Self_ sample count for `dav1d_cdef_brow_8bpc` should ma
 Now we see something interesting: focusing in the second part, the summed _Self_ sample count of `cdef_filter_{8x8,4x4}_neon` is about 400 samples, while `rav1d`'s `cdef_filter_neon_erased` is almost 670 samples. We can also see that `dav1d_cdef_brow_8bpc` is 1790 samples, vs `rav1d_cdef_brow`'s 2350 samples.
 
 Together, this difference accounts for about 1% of the total runtime of `rav1d`!
+
+### `cdef_filter_neon_erased`
 
 Jumping to the `cdef_filter_neon_erased` implementation, except for a bunch of pointer casting using `.cast()`, 
 there's only one "big thing" going on that's not part of the call-to-asm machinery:
