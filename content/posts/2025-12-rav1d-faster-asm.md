@@ -40,6 +40,8 @@ Which we fix by switching to a more compiler-friendly version ([PR]). [4](#switc
 <i>Side note: again, we'll be running all these benchmarks on a MacBook, so our tools are a tad limited
 and we'll have to resort to some guesswork. Leave a comment if you know more - or, even better, write an article about profiling on macOS 🍎💨.</i>
 
+Discuss on [r/rust](https://www.reddit.com/r/rust/comments/1pwzti4/why_is_calling_my_asm_function_from_rust_slower/), [lobsters](https://lobste.rs/s/byxxmk/why_is_calling_my_asm_function_from_rust), [HN](https://news.ycombinator.com/item?id=46401982)! 👋
+
 <p align="center">
     <img src="/2025-12-rav1d-faster-asm/instruments.webp" 
         alt="Instruments quit unexpectedly after running a few recordings" loading="lazy" width="66%" width="1458px" height="622px" />
