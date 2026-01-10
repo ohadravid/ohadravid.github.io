@@ -71,3 +71,5 @@ No special generics, no secret compiler internals voodoo, no crazy type system m
 
 So why 14? \
 Seems like because Rust thinks that 13 references [ought to be enough for anybody](https://www.computerworld.com/article/1563853/the-640k-quote-won-t-go-away-but-did-gates-really-say-it.html).
+
+_Edit: More interesting details (for example, did you notice there are only **12 &s** in `to_string_str!`?) in the [lobste.rs discussion](https://lobste.rs/s/jo3dnh/str), and more joking over at [r/rust](https://www.reddit.com/r/rust/comments/1q8czqi/str/)._
