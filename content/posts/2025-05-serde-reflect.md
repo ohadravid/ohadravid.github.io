@@ -19,7 +19,10 @@ Let me show you how, and also why.
 
 _Note: I'll try to keep this somewhat approachable to Python programmers with only passing experience in Rust, it'll be fun._ 🦀🐍
 
-_I also gave a talk on this topic at EuroRust 2025, you can find the slides [here](/2025-05-serde-reflect/eurorust_2025_serde_driven_reflection.pdf)._
+_I also gave a talk on this topic at EuroRust 2025 ([slides](/2025-05-serde-reflect/eurorust_2025_serde_driven_reflection.pdf)), here's the recording:_
+
+<p align="center">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/7Znf3FQih-o?si=Oa_Q4UWUx3ohEf3-&list=PLH6-VpZ3SvUUO_lfxniFmyKxUMngBOWFg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 <img
   src="/2025-05-serde-reflect/rick_and_motry_20min_adventure_with_types.webp"
@@ -28,6 +31,7 @@ _I also gave a talk on this topic at EuroRust 2025, you can find the slides [her
   width="1280"
   height="720"
 />
+</p>
 
 [^1]: The result of this work is the [`wmi-rs` crate], which I maintain to this day.
 
