@@ -95,7 +95,10 @@ Why don't you print anything, Go? WHY?
 
 why? 😔
 
+
 --
+
+_Discuss on [lobste.rs](https://lobste.rs/s/o3cpxf/sliced_by_go_s_slices)._
 
 _If you liked this, you might also like [The story of the craziest `__init__` I’ve ever seen]({{< ref "/posts/2025-04-19-frank.md" >}})._
 
