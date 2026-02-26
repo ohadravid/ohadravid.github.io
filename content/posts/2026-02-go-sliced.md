@@ -62,7 +62,7 @@ check(*l)
 print(l)
 ```
 
-But even with `**kwargs`:
+So the assignment fails, but even with `**kwargs`:
 
 ```python
 def check(**kwargs):
@@ -72,6 +72,8 @@ d = {"1": None}
 check(**d)
 assert d["1"] is None, "Sanity prevails! 😌"
 ```
+
+We get a new dictionary in the callee, and sanity prevails.
 
 And, TBH, I've been putting up with Go's... peculiarities for a while now, 
 but every now and then there's something like this, where I feel like Go wants me to die an early death from high blood pressure.
