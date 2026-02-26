@@ -42,9 +42,10 @@ and we'll have to resort to some guesswork. Leave a comment if you know more - o
 
 Discuss on [r/rust](https://www.reddit.com/r/rust/comments/1pwzti4/why_is_calling_my_asm_function_from_rust_slower/), [lobsters](https://lobste.rs/s/byxxmk/why_is_calling_my_asm_function_from_rust), [HN](https://news.ycombinator.com/item?id=46401982)! 👋
 
-<p align="center">
+<p style="text-align:center;">
     <img src="/2025-12-rav1d-faster-asm/instruments.webp" 
-        alt="Instruments quit unexpectedly after running a few recordings" loading="lazy" width="66%" width="1458px" height="622px" />
+        alt="Instruments quit unexpectedly after running a few recordings" loading="lazy" 
+        style="width:66%; height:auto;" width="1458" height="622" />
 </p>
 
 ## `filter4_pri_edged_8bpc`
