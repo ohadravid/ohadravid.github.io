@@ -54,183 +54,53 @@ Now is a good time for a fresh cup of tea! 🍵
 
 ## Setting Up Our Tables and Data
 
-Let's switch from Go with GORM to Python with SQLAlchemy, using the [Core API][insert-docs]. We do not need a full ORM for this example, and anyway ORMs are not _in vogue_.
+For our example, we will model an order management app for the famous "Krusty Krab" restaurant.
+The gist is:
+1. We'll have an **_orders_** table with ~4.5M rows, most of which will be `KrabbyPatties` and `CoralBites`.
+2. We'll have 2 row with `Special` items.
+1. We'll also have an **_employee_** table we need to `JOIN` into.
 
-Our example will model a backend for a restaurant order management app, using two tables. A small employee table:
-
-```python
-metadata_obj = MetaData()
-employee_table = Table(
-    "employee",
-    metadata_obj,
-    Column("id", Integer, primary_key=True),
-    Column("name", String(32), nullable=False, unique=True),
-    Column("email_address", String(60), nullable=True),
-)
-```
-
-Into which we can [`insert()`][insert-docs] a few chosen employees:
-
-```python
-stmt = insert(employee_table).values(
-    name="spongebob",
-    email_address="spongebob@bikinibottom.io",
-)
-result = conn.execute(stmt)
-conn.commit()
-spongebob_id, = result.inserted_primary_key
-```
-
-[insert-docs]: https://docs.sqlalchemy.org/en/21/tutorial/data_insert.html#the-insert-sql-expression-construct
-
-_Side note: yes I bought `bikinibottom.io` for this blog post. It could not have been helped._
-
-And a soon to be huge `orders`[^2] table:
-
-[^2]: Yes, using plural form is worse _and_ inconsistent with the `employee` table, but we don't want to use `order` to avoid confusion with `ORDER BY`.
-
-<style>
-/* Use a responsive grid to show the clippings side by side if the screen is wide enough */
-.wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 2px;
-}
-
-.wrapper pre {
-  margin: 0;
-}
-
-.box {
-  padding: 2px;
-}
-
-.asm-intro-top-bottom {
-  display: none;
-}
-
-@media (max-width: 520px) {
-  .wrapper {
-    grid-template-columns: 1fr; /* two rows */
-  }
-}
-</style>
-
-<div class="wrapper">
-    <div class="box">
-{{< markdownify >}}
-```python
-from enum import Enum
-class KrabbyPattyItemType(Enum):
-    KrabbyPatty = 1
-    CoralBites = 2
-    KelpRings = 3
-    Special = 4
-
-class Status(Enum):
-    Pending = 1
-    InProgress = 2
-    Done = 3
-```
-{{< /markdownify >}}
-    </div>
-    <div class="box">
-{{< markdownify >}}
-```python
-from sqlalchemy import Enum
-orders = Table(
-    "orders",
-    metadata_obj,
-    Column("id", Integer, primary_key=True),
-    Column("item_type", Enum(KrabbyPattyItemType), ...),
-    Column("status", Enum(Status), ...),
-    Column("made_by", Integer, ForeignKey("employee.id"), ...),
-    Column("timestamp", DateTime, ...),
-    Column("item_details", JSONB, ...),
-)
-```
-{{< /markdownify >}}
-    </div>
-</div>
-
-
-Now we can fill it with 22,000[^3] Krabby Patties and Coral Bites (times 100), spread over a few years - some orders will be `InProgress` and some will be `Done`:
-
-```python
-# Spread times from first show air date to... 2069.
-def choose_dt(i: int, j: int):
-    return dt.datetime(1999, 5, 1) + dt.timedelta(seconds=i * 100000 + j * 10)
-
-for i in range(22_000):
-    rows = [
-        {
-            "made_by": spongebob_id,
-            "status": Status.Done if i % 2 == 0 else Status.InProgress,
-            "item_type": KrabbyPattyItemType.KrabbyPatty,
-            "timestamp": choose_dt(i, j),
-        }
-        for j in range(100)
-    ]
-
-    stmt = insert(orders)
-    result = conn.execute(stmt, rows)
-    conn.commit()
-
-# same for `CoralBites`.
-```
-
-This is not the fastest way to fill up a table<sup style="font-size: x-small;">[_citation needed_]</sup>,
-but on my MacBook it takes ~2 minutes so it's good enough. 
-
-[^3]: 
-    Why 22,000? Well, the only AI usage (aside from spellchecking) in this article was using ChatGPT's Deep Research to "Estimating Krabby Patty Production Across SpongeBob SquarePants":
-
-    > The most defensible series-wide estimate is about 25,000 Krabby Patties made on-screen or strongly implied on-screen, with a hard lower bound of about 8,100 and a liberal upper bound of about 43,000. 
-    > 
-    > On attribution, SpongeBob is still overwhelmingly the main producer. **My best attribution is about 22,000 patties made by SpongeBob himself**, ..
-
-    So 22,000 it is. Good Bot! 🤖
-
-
-We'll finish up by inserting a few specials from the [List of Krabby Patty variations] in _Encyclopedia SpongeBobia_:
-
-[List of Krabby Patty variations]: https://spongebob.fandom.com/wiki/List_of_Krabby_Patty_variations
-
-```python
-insert(orders).values(
-    made_by=spongebob_id,
-    status=Status.InProgress,
-    item_type=KrabbyPattyItemType.Special,
-    item_details={
-        "name": "Krusty Krab Pizza",
-    },
-)
-
-insert(orders).values(
-    made_by=spongebob_id,
-    status=Status.InProgress,
-    item_type=KrabbyPattyItemType.Special,
-    item_details={
-        "name": "Triple Krabby Supreme",
-    },
-)
-```
-
-Andddd done! We now have all the data we need - but we also need to query this data.
+You can read more details about this in the [Appendix](#appendix-a---generating-the-data), but the TL;DR is:
 
 ```sql
-postgres=# SELECT * FROM orders LIMIT 2;
-   id   |  item_type  | status | made_by |      timestamp      | item_details
---------+-------------+--------+---------+---------------------+--------------
- 251201 | KrabbyPatty | Done   |       1 | 2007-04-16 09:46:40 |
- 251202 | KrabbyPatty | Done   |       1 | 2007-04-16 09:46:50 |
-(2 rows)
+postgres=# SELECT * FROM employee;
+ id |   name    |       email_address
+----+-----------+---------------------------
+  1 | SpongeBob | spongebob@bikinibottom.io
+  2 | Squidward | squidward@bikinibottom.io
+  3 | Mr. Krabs | mrkrabs@bikinibottom.io
+(3 rows)
 postgres=# SELECT count(*) FROM orders;
   count
 ---------
  4400002
 (1 row)
 ```
+
+_Side note: yes I bought `bikinibottom.io` for this blog post. It could not have been helped._
+
+A few employees, a ton of orders - but with a skewed distribution:
+
+```sql
+postgres=# SELECT * FROM orders 
+postgres=# JOIN employee on made_by = employee.id LIMIT 2;
+|  item_type  | status | .. |   name    |       email_address
++-------------+--------+----|-----------+------------------------------
+| KrabbyPatty | Done   | .. | SpongeBob | spongebob@bikinibottom.io
+| KrabbyPatty | Done   | .. | SpongeBob | spongebob@bikinibottom.io
+(2 rows)
+
+postgres=# SELECT * FROM orders
+postgres=# WHERE item_type = 'Special';
+| item_type |   status   | .. |                     item_details
++-----------+------------+----|----------------------------------------
+| Special   | InProgress | .. | {"name": "Krusty Krab Pizza", ..}
+| Special   | InProgress | .. | {"name": "Triple Krabby Supreme", ..}
+(2 rows)
+```
+
+
+With all this data, we can now build our queries and trigger some interesting PostgreSQL behaviors.
 
 <p style="text-align:center;">
     <img src="/2026-04-query-plans/Just_One_Bite_165.webp" 
@@ -240,6 +110,8 @@ postgres=# SELECT count(*) FROM orders;
 
 
 ## Our Query Function
+
+Let's switch from Go with GORM to Python with SQLAlchemy, using the [Core API][insert-docs]. We do not need a full ORM for this example, and anyway ORMs are not _in vogue_.
 
 We have 3 queries we want to perform against these tables - you can think of them as separate pages we want to display in our "Krusty Krab App":
 
@@ -561,3 +433,179 @@ So, either:
 
 1. Use `SET LOCAL plan_cache_mode = force_custom_plan` to avoid generic plans, which will "waste" more resources on planning but avoid this issue.
 2. Inline values that should always effect query plans instead of passing them as query parameters.
+
+## Appendix A - Generating the Data
+
+For generating our data, we'll use 2 tables. A small employee table:
+
+```python
+metadata_obj = MetaData()
+employee_table = Table(
+    "employee",
+    metadata_obj,
+    Column("id", Integer, primary_key=True),
+    Column("name", String(32), nullable=False, unique=True),
+    Column("email_address", String(60), nullable=True),
+)
+```
+
+Into which we can [`insert()`][insert-docs] a few chosen employees:
+
+```python
+stmt = insert(employee_table).values(
+    name="spongebob",
+    email_address="spongebob@bikinibottom.io",
+)
+result = conn.execute(stmt)
+conn.commit()
+spongebob_id, = result.inserted_primary_key
+```
+
+[insert-docs]: https://docs.sqlalchemy.org/en/21/tutorial/data_insert.html#the-insert-sql-expression-construct
+
+And a soon to be huge `orders`[^2] table:
+
+[^2]: Yes, using plural form is worse _and_ inconsistent with the `employee` table, but we don't want to use `order` to avoid confusion with `ORDER BY`.
+
+<style>
+/* Use a responsive grid to show the clippings side by side if the screen is wide enough */
+.wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 2px;
+}
+
+.wrapper pre {
+  margin: 0;
+}
+
+.box {
+  padding: 2px;
+}
+
+.asm-intro-top-bottom {
+  display: none;
+}
+
+@media (max-width: 520px) {
+  .wrapper {
+    grid-template-columns: 1fr; /* two rows */
+  }
+}
+</style>
+
+<div class="wrapper">
+    <div class="box">
+{{< markdownify >}}
+```python
+from enum import Enum
+class KrabbyPattyItemType(Enum):
+    KrabbyPatty = 1
+    CoralBites = 2
+    KelpRings = 3
+    Special = 4
+
+class Status(Enum):
+    Pending = 1
+    InProgress = 2
+    Done = 3
+```
+{{< /markdownify >}}
+    </div>
+    <div class="box">
+{{< markdownify >}}
+```python
+from sqlalchemy import Enum
+orders = Table(
+    "orders",
+    metadata_obj,
+    Column("id", Integer, primary_key=True),
+    Column("item_type", Enum(KrabbyPattyItemType), ...),
+    Column("status", Enum(Status), ...),
+    Column("made_by", Integer, ForeignKey("employee.id"), ...),
+    Column("timestamp", DateTime, ...),
+    Column("item_details", JSONB, ...),
+)
+```
+{{< /markdownify >}}
+    </div>
+</div>
+
+
+Now we can fill it with 22,000[^3] Krabby Patties and Coral Bites (times 100), spread over a few years - some orders will be `InProgress` and some will be `Done`:
+
+```python
+# Spread times from first show air date to... 2069.
+def choose_dt(i: int, j: int):
+    return dt.datetime(1999, 5, 1) + dt.timedelta(seconds=i * 100000 + j * 10)
+
+for i in range(22_000):
+    rows = [
+        {
+            "made_by": spongebob_id,
+            "status": Status.Done if i % 2 == 0 else Status.InProgress,
+            "item_type": KrabbyPattyItemType.KrabbyPatty,
+            "timestamp": choose_dt(i, j),
+        }
+        for j in range(100)
+    ]
+
+    stmt = insert(orders)
+    result = conn.execute(stmt, rows)
+    conn.commit()
+
+# same for `CoralBites`.
+```
+
+This is not the fastest way to fill up a table<sup style="font-size: x-small;">[_citation needed_]</sup>,
+but on my MacBook it takes ~2 minutes so it's good enough. 
+
+[^3]: 
+    Why 22,000? Well, the only AI usage (aside from spellchecking) in this article was using ChatGPT's Deep Research to "Estimating Krabby Patty Production Across SpongeBob SquarePants":
+
+    > The most defensible series-wide estimate is about 25,000 Krabby Patties made on-screen or strongly implied on-screen, with a hard lower bound of about 8,100 and a liberal upper bound of about 43,000. 
+    > 
+    > On attribution, SpongeBob is still overwhelmingly the main producer. **My best attribution is about 22,000 patties made by SpongeBob himself**, ..
+
+    So 22,000 it is. Good Bot! 🤖
+
+
+We'll finish up by inserting a few specials from the [List of Krabby Patty variations] in _Encyclopedia SpongeBobia_:
+
+[List of Krabby Patty variations]: https://spongebob.fandom.com/wiki/List_of_Krabby_Patty_variations
+
+```python
+insert(orders).values(
+    made_by=spongebob_id,
+    status=Status.InProgress,
+    item_type=KrabbyPattyItemType.Special,
+    item_details={
+        "name": "Krusty Krab Pizza",
+    },
+)
+
+insert(orders).values(
+    made_by=spongebob_id,
+    status=Status.InProgress,
+    item_type=KrabbyPattyItemType.Special,
+    item_details={
+        "name": "Triple Krabby Supreme",
+    },
+)
+```
+
+Andddd done! We now have all the data we need - but we also need to query this data.
+
+```sql
+postgres=# SELECT * FROM orders LIMIT 2;
+   id   |  item_type  | status | made_by |      timestamp      | item_details
+--------+-------------+--------+---------+---------------------+--------------
+ 251201 | KrabbyPatty | Done   |       1 | 2007-04-16 09:46:40 |
+ 251202 | KrabbyPatty | Done   |       1 | 2007-04-16 09:46:50 |
+(2 rows)
+postgres=# SELECT count(*) FROM orders;
+  count
+---------
+ 4400002
+(1 row)
+```
