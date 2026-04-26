@@ -143,7 +143,7 @@ pygmentsStyle = "nord"
 
 # To avoid listing a post, use 
 # ```
-# _build: 
+# build: 
 #  list: never
 # ```
 # in the front matter of the post.
