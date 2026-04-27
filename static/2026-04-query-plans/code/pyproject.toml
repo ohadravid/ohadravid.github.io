@@ -1,0 +1,13 @@
+[project]
+name = "partial-idx-db"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "jupyterlab>=4.5.6",
+    "psycopg>=3.3.2",
+    "pytest>=9.0.2",
+    "sqlalchemy>=2.0.46",
+    "tqdm>=4.67.3",
+]
