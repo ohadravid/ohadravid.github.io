@@ -1,14 +1,12 @@
 
 ---
 title: "The Best (Query) Plans of Mice and Men"
-date: 2026-04-26T00:00:00+00:00
+date: 2026-04-28T13:00:00+00:00
 tags: ["databases", "performance", "python"]
 type: post
 showTableOfContents: true
 image: ""
 weight: 1
-build:
- list: never
 ---
 <style>
 .post .post-content {
