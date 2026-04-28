@@ -525,7 +525,7 @@ So, either:
 
 --
 
-_Discuss on [lobste.rs](https://lobste.rs/domains/ohadravid.github.io), [HN](https://news.ycombinator.com/from?site=ohadravid.github.io)._
+_Discuss on [lobste.rs](https://lobste.rs/s/a7aoor/best_query_plans_mice_men), [HN](https://news.ycombinator.com/item?id=47936051)._
 
 
 _If you liked this, you might also like [BTrees, Inverted Indices, and a Model for Full Text Search]({{< ref "/posts/2025-04-08-btrees-and-mental-models.md" >}}) and [Why is calling my asm function from Rust slower than calling it from C?]({{< ref "2025-12-rav1d-faster-asm.md" >}})._
