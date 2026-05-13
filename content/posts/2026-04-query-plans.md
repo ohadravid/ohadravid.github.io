@@ -1,13 +1,13 @@
-
 ---
 title: "The Best (Query) Plans of Mice and Men"
 date: 2026-04-28T13:00:00+00:00
 tags: ["databases", "performance", "python"]
 type: post
 showTableOfContents: true
-image: ""
+image: "/2026-04-query-plans/query_plans.webp"
 weight: 1
 ---
+
 <style>
 .post .post-content {
     margin-top: 0px;
