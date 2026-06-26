@@ -33,6 +33,10 @@ Is it worth the social brainwork? IDK, for some tasks maybe - there are things a
 
 LLMs ask us to talk to them, but rarely reward that effort in kind.
 
+
+_Discuss on [lobste.rs](https://lobste.rs/s/csgzki/exhaustion_talking_tool)._
+
+
 <p style="text-align:center;">
     <img src="/2026-06-tool-talking/carpentry_tools.webp" 
         alt="Carpentry tools recovered from the wreck of the Mary Rose, a 16th-century sailing ship" style="width:70%; height:auto;" width="956" height="664" />
