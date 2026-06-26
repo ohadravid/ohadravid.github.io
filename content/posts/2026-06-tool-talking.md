@@ -34,7 +34,7 @@ Is it worth the social brainwork? IDK, for some tasks maybe - there are things a
 LLMs ask us to talk to them, but rarely reward that effort in kind.
 
 
-_Discuss on [lobste.rs](https://lobste.rs/s/csgzki/exhaustion_talking_tool)._
+_Discuss on [lobste.rs](https://lobste.rs/s/csgzki/exhaustion_talking_tool), [HN](https://news.ycombinator.com/item?id=48687903)._
 
 
 <p style="text-align:center;">
