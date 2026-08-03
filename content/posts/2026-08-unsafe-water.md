@@ -120,12 +120,12 @@ In my head, this is also the "non-buoyant water law of memory safety".
   </figcaption>
 </figure>
 
-This definition is, obviously, no good for the real experts who design memory models and compilers and CPUs - they'd like to do ~~fun~~ important stuff like _proving_ properties of programs, and eliminating operations that cannot be observed, and so on. \
+This definition is, obviously, no good for the real experts who design memory models and compilers and CPUs - they'd like to do ~~fun~~ important stuff like _proving_ properties of programs, and eliminating operations that cannot be observed, and so on.
 
 So to be more precise: having a proper _technical_ definition of memory safety **is important** - insofar as it ensures that _safe_ operations on memory match our general expectations around memory and have rules that can easily be followed correctly.
 
 The unsafe side of the boundary can have complex and even obscure rules, \
-but if the safe side _also_ has obscure rules that are hard to follow, is it _useful to draw the boundary_?
+but if the safe side _also_ has obscure rules that are hard to follow, _is it even useful to draw the boundary_?
 
 Rules that are simple and enforced automatically are easier to follow correctly than rules that are complex and unchecked.[^4]
 However, if there's an asterisk on each memory access, then what's the point of the word "safety" anyway?
@@ -146,6 +146,8 @@ There can be some subtlety to the definition, and of course there are also issue
 
 Or, to borrow [Ralf Jung’s phrasing][what-the-hardware-does] slightly out of context: <mark>"When writing safe Rust, you do not have to worry"</mark> about the abstract machine. And really, the world provides enough things to worry about without adding that to the list.
 
+_Discuss on [lobste.rs](https://lobste.rs/s/yjzexe/practical_memory_safety)._
+
 [what-the-hardware-does]: https://www.ralfj.de/blog/2019/07/14/uninit.html#:~:text=When%20writing%20safe%20Rust%2C%20you%20do%20not%20have%20to%20worry%20about%20this
 
 ## Appendix: Some More Examples
@@ -165,7 +167,7 @@ cdll.LoadLibrary("libc.so.6")
 libc = CDLL("libc.so.6")
 ```
 
-But everything is literally called C-something. That's the sign.
+But everything unsafe is literally called C-something. That's the sign.
 
 Similarly, any language where FFI or unsafe memory access is an explicit construct (`unsafe extern "C"` in Rust, P/Invoke and `unsafe` in .Net, or Java's JNI),
 _can_ be safe.
