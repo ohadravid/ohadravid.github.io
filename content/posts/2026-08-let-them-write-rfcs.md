@@ -4,11 +4,10 @@ date: 2026-08-08T04:30:00+00:00
 tags: ["vibecoding", "thoughts"]
 type: post
 showTableOfContents: false
-# image: "/2026-08-let-them-write-rfcs/XXX.webp"
+image: "/2026-08-let-them-write-rfcs/brooms.webp"
 weight: 1
 build: 
  list: never
-math: false
 ---
 
 <style>
@@ -25,19 +24,37 @@ Or: why I spent hundreds of millions of tokens to write four versions of the sam
 
 -----
 
-I'm working on a complex project that's _just_ at the edge of what I know how to build, which is pretty fun! But also hard, especially when I try to speed things up by using LLMs.[^1] As a result:
+I'm working on a complex project that's _just_ beyond what I know how to build, which is pretty fun! But also hard, especially when I try to speed things up by using LLMs.[^1] As a result:
 
-1. I sometimes don't understand the problem well enough.
-2. I sometimes don't _know_ that.
-3. I'm more easily fooled by ideas that [sound good][pg-good-writing] due to 1 & 2.
+1. Sometimes I don't understand the problem well enough.
+2. Sometimes I don't _know_ that.
+3. Sometimes I'm easily fooled by ideas that [sound good][pg-good-writing] due to 1 & 2.
 
 [pg-good-writing]: https://www.paulgraham.com/goodwriting.html
 
 [^1]: This project is an example for a time when [talking to the tool]({{< ref "/posts/2026-06-tool-talking.md" >}}) is _draining_ but totally worth it.
 
+The results _might_ be a catastrophe, and some would argue that one shouldn't be going around working on things they don't understand armed with nothing but good vibes and an LLM.
+
+<p style="text-align:center;">
+    <img src="/2026-08-let-them-write-rfcs/dog.webp" 
+        alt="chemistry dog with the 'I have no idea what I'm doing' caption" style="width:70%; height:auto;" width="680" height="383" />
+</p>
+
+That's BS. I _never_ had a good understanding of something when I _started_ working on it. Working on the thing is what makes you understand the thing!
+
+But these problems _are_ amplified by LLM usage: friction is removed, so you can _continue_ working on the thing without understanding it, but also without noticing you don't, which of course makes it easier to be fooled - resulting in a terrible cycle of LLM psychosis.
+
+Combine this with the current generation of LLMs' tendencies to tenaciously ignore anything but the current target, and you get why people are losing their minds.
+
+<p style="text-align:center;">
+    <img src="/2026-08-let-them-write-rfcs/brooms.webp" 
+        alt="The Sorcerer's Apprentice - Fantasia Broom Scene" style="width:70%; height:auto;" width="956" height="664" />
+</p>
+
 What I came up with is asking, sometimes after intensive [rambling][ramble-tweet], "... this is the vague problem we have right now. **Write a markdown file called $PROBLEM_RFC.md** about this problem and how to solve it. _Keep the prose short, have good code examples_."
 
-Then, I'll **iterate and revise** until I'm convinced that I _do_ understand the problem well enough and the ideas _are_ sound. Big enough changes result in new $PROBLEM_RFC_V{N+1}.md file(s).
+Then, I'll **iterate and revise** until I'm convinced that I _do_ understand the problem well enough and the ideas _are_ sound.
 
 [ramble-tweet]: https://x.com/guinnesschen/status/2068744472528314811
 
