@@ -18,7 +18,7 @@ pygmentsStyle = "nord"
   ]
   metaKeywords = ["blog", "tech", "rust"]
   showPostsOnHomePage = "recent"
-  numberPostsOnHomePage = 15
+  numberPostsOnHomePage = 30
   customHeadHTML = '''
     <style>
     /* Disable floating header. */
